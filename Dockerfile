@@ -1,17 +1,21 @@
-FROM python:3.12-slim
+FROM python:3.12.14-alpine3.24
 
-RUN addgroup --system app && adduser --system --ingroup app app \
-    && apt-get update && apt-get install -y --no-install-recommends ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apk add --no-cache ca-certificates \
+    && addgroup -S app \
+    && adduser -S -G app app
 
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir --no-compile -r requirements.txt
 
-COPY app ./app
+COPY --chown=app:app app ./app
 
 USER app
 
 EXPOSE 8000
+
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
