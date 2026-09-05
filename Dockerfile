@@ -3,7 +3,10 @@ FROM python:3.12.14-alpine3.24
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-RUN apk add --no-cache ca-certificates \
+RUN apk update \
+    && apk upgrade libuuid \
+    && apk add --no-cache ca-certificates \
+    && rm -rf /var/cache/apk/* \
     && addgroup -S app \
     && adduser -S -G app app
 
